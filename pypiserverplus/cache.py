@@ -19,7 +19,7 @@ except ImportError:
     ENABLE_CACHING = False
 
 if t.TYPE_CHECKING:
-    from pypiserver.core import PkgFile
+    from pypiserverplus.core import PkgFile
 
 
 class CacheManager:
@@ -42,7 +42,7 @@ class CacheManager:
         if not ENABLE_CACHING:
             raise RuntimeError(
                 "Please install the extra cache requirements by running 'pip "
-                "install pypiserver[cache]' to use the CachingFileBackend"
+                "install pypiserverplus[cache]' to use the CachingFileBackend"
             )
 
         # Cache for listdir output

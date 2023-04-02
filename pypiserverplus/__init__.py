@@ -4,14 +4,14 @@ import re as _re
 import sys
 import typing as t
 
-from pypiserver.bottle import Bottle
-from pypiserver.config import Config, RunConfig, strtobool
+from pypiserverplus.bottle import Bottle
+from pypiserverplus.config import Config, RunConfig, strtobool
 
-version = __version__ = "1.5.1"
+version = __version__ = "1.5.1.1"
 __version_info__ = tuple(_re.split("[.-]", __version__))
-__updated__ = "2022-10-18 16:06:16"
+__updated__ = "2023-04-02 01:51:00"
 
-__title__ = "pypiserver"
+__title__ = "pypiserverplus"
 __summary__ = "A minimal PyPI server for use with pip/easy_install."
 __uri__ = "https://github.com/pypiserver/pypiserver"
 
@@ -53,7 +53,7 @@ def backwards_compat_kwargs(kwargs: dict, warn: bool = True) -> dict:
         ),
         "server": ("server_method", identity),
         # `welcome_msg` now is just provided as text, so that anyone using
-        # pypiserver as a library doesn't need to worry about distributing
+        # pypiserverplus as a library doesn't need to worry about distributing
         # files if they don't need to. If we're still passed an old-style
         # `welcome_file` argument, we go ahead and resolve it to an absolute
         # path and read the text.
@@ -105,7 +105,7 @@ def backwards_compat_kwargs(kwargs: dict, warn: bool = True) -> dict:
             if k in kwargs and v in kwargs
         ]
         raise ValueError(
-            "Keyword arguments for pypiserver app() constructor contained "
+            "Keyword arguments for pypiserverplus app() constructor contained "
             "duplicate legacy and modern keys. Duplicates are shown below, in "
             "the form (legacy_key, modern_key):\n"
             f"{dupes}"
@@ -115,10 +115,10 @@ def backwards_compat_kwargs(kwargs: dict, warn: bool = True) -> dict:
 
 
 def app(**kwargs: t.Any) -> Bottle:
-    """Construct a bottle app running pypiserver.
+    """Construct a bottle app running pypiserverplus.
 
     :param kwds: Any overrides for defaults. Any property of RunConfig
-        (or its base), defined in `pypiserver.config`, may be overridden.
+        (or its base), defined in `pypiserverplus.config`, may be overridden.
     """
     config = Config.default_with_overrides(**backwards_compat_kwargs(kwargs))
     return setup_routes_from_config(app_from_config(config), config)
@@ -133,7 +133,7 @@ def app_from_config(config: RunConfig) -> Bottle:
     _app = __import__("_app", globals(), locals(), ["."], 1)
     # Because we're about to mutate our import, we pop it out of the imported
     # modules map, so that any future imports do not receive our mutated version
-    sys.modules.pop("pypiserver._app", None)
+    sys.modules.pop("pypiserverplus._app", None)
     _app.config = config
     # Add a reference to our config on the Bottle app for easy access in testing
     # and other contexts.

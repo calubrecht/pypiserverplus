@@ -3,7 +3,7 @@ from pathlib import WindowsPath, PureWindowsPath
 
 import pytest
 
-from pypiserver.pkg_helpers import guess_pkgname_and_version, is_listed_path
+from pypiserverplus.pkg_helpers import guess_pkgname_and_version, is_listed_path
 
 files = [
     ("pytz-2012b.tar.bz2", "pytz", "2012b"),

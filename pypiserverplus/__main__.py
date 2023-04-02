@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-"""Entrypoint for pypiserver."""
+"""Entrypoint for pypiserverplus."""
 
 import enum
 import importlib
@@ -10,9 +10,9 @@ from pathlib import Path
 from wsgiref.simple_server import WSGIRequestHandler
 
 import functools as ft
-from pypiserver.config import Config, UpdateConfig
+from pypiserverplus.config import Config, UpdateConfig
 
-log = logging.getLogger("pypiserver.main")
+log = logging.getLogger("pypiserverplus.main")
 
 
 def init_logging(
@@ -114,14 +114,14 @@ def guess_auto_server() -> AutoServer:
 
 
 def main(argv: t.Sequence[str] = None) -> None:
-    """Application entrypoint for pypiserver.
+    """Application entrypoint for pypiserverplus.
 
     This function drives the application (as opposed to the library)
-    implementation of pypiserver. Usage from the commandline will result in
+    implementation of pypiserverplus. Usage from the commandline will result in
     this function being called.
     """
     # pylint: disable=import-outside-toplevel
-    import pypiserver  # pylint: disable=redefined-outer-name
+    import pypiserverplus  # pylint: disable=redefined-outer-name
 
     if argv is None:
         # The first item in sys.argv is the name of the python file being
@@ -140,7 +140,7 @@ def main(argv: t.Sequence[str] = None) -> None:
     # Check to see if we were asked to run an update command instead of running
     # the server
     if isinstance(config, UpdateConfig):
-        from pypiserver.manage import update_all_packages
+        from pypiserverplus.manage import update_all_packages
 
         update_all_packages(
             config.roots,
@@ -159,7 +159,7 @@ def main(argv: t.Sequence[str] = None) -> None:
 
         gevent.monkey.patch_all()
 
-    from pypiserver import bottle
+    from pypiserverplus import bottle
 
     bottle.debug(config.verbosity > 1)
     bottle._stderr = ft.partial(  # pylint: disable=protected-access
@@ -168,12 +168,12 @@ def main(argv: t.Sequence[str] = None) -> None:
 
     # Here `app` is a Bottle instance, which we pass to bottle.run() to run
     # the server
-    app = pypiserver.app_from_config(config)
-    app = pypiserver.setup_routes_from_config(app, config)
+    app = pypiserverplus.app_from_config(config)
+    app = pypiserverplus.setup_routes_from_config(app, config)
 
     if config.server_method == "gunicorn":
         # When bottle runs gunicorn, gunicorn tries to pull its arguments from
-        # sys.argv. Because pypiserver's arguments don't match gunicorn's,
+        # sys.argv. Because pypiserverplus's arguments don't match gunicorn's,
         # this leads to errors.
         # Gunicorn can be configured by using a `gunicorn.conf.py` config file
         # or by specifying the `GUNICORN_CMD_ARGS` env var. See gunicorn

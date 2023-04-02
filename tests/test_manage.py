@@ -9,10 +9,10 @@ from unittest.mock import Mock
 import py
 import pytest
 
-from pypiserver import manage
-from pypiserver.core import PkgFile
-from pypiserver.pkg_helpers import guess_pkgname_and_version, parse_version
-from pypiserver.manage import (
+from pypiserverplus import manage
+from pypiserverplus.core import PkgFile
+from pypiserverplus.pkg_helpers import guess_pkgname_and_version, parse_version
+from pypiserverplus.manage import (
     PipCmd,
     build_releases,
     filter_stable_releases,
@@ -59,7 +59,7 @@ def test_is_stable_version(version, is_stable):
 
 
 def test_build_releases():
-    p = pkgfile_from_path("/home/ralf/pypiserver/d/greenlet-0.2.zip")
+    p = pkgfile_from_path("/home/ralf/pypiserverplus/d/greenlet-0.2.zip")
 
     expected = dict(
         parsed_version=("00000000", "00000003", "*final"),
@@ -74,10 +74,10 @@ def test_build_releases():
 
 
 def test_filter_stable_releases():
-    p = pkgfile_from_path("/home/ralf/pypiserver/d/greenlet-0.2.zip")
+    p = pkgfile_from_path("/home/ralf/pypiserverplus/d/greenlet-0.2.zip")
     assert list(filter_stable_releases([p])) == [p]
 
-    p2 = pkgfile_from_path("/home/ralf/pypiserver/d/greenlet-0.5rc1.zip")
+    p2 = pkgfile_from_path("/home/ralf/pypiserverplus/d/greenlet-0.5rc1.zip")
     assert list(filter_stable_releases([p2])) == []
 
 

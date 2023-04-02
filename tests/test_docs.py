@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import re
-from pypiserver import version as my_ver
+from pypiserverplus import version as my_ver
 
 
 @pytest.fixture()

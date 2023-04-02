@@ -958,6 +958,7 @@ class Bottle(object):
     def wsgi(self, environ, start_response):
         """ The bottle WSGI-interface. """
         try:
+            print( environ['PATH_INFO'])
             out = self._cast(self._handle(environ))
             # rfc2616 section 4.3
             if response._status_code in (100, 101, 204, 304)\

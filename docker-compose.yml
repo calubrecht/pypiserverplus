@@ -1,8 +1,8 @@
 ---
 # ######################################################################
-# pypiserver docker-compose examples
+# pypiserverplus docker-compose examples
 # ######################################################################
-# The below examples illustrate different ways that pypiserver may be
+# The below examples illustrate different ways that pypiserverplus may be
 # configured with docker-compose (and by extension, with Docker) to
 # serve your python packages.
 #
@@ -25,7 +25,7 @@ services:
     # ##################################################################
 
     pypiserver-default:
-        image: pypiserver/pypiserver:latest
+        image: pypiserverplus/pypiserverplus:latest
         ports:
             - "8080:8080"
 
@@ -33,17 +33,17 @@ services:
     # Authenticated
     # ##################################################################
     # This config uses a locally created .htpasswd file to authenticate
-    # access to pypiserver. We assume our .htpasswd file is in a local
+    # access to pypiserverplus. We assume our .htpasswd file is in a local
     # directory `./auth`, which we mount to `/data/auth` in the
     # container, and update the `command` from the Dockerfile to look
     # for that file for authentication. Note that because we are
-    # overriding the default `command`, which tells pypiserver where to
+    # overriding the default `command`, which tells pypiserverplus where to
     # serve packages from, we need to include that part of the command
     # in addition to our authentication information.
     # ##################################################################
 
     pypiserver-authenticated:
-        image: pypiserver/pypiserver:latest
+        image: pypiserverplus/pypiserverplus:latest
         volumes:
             - type: bind
               source: ./auth
@@ -64,7 +64,7 @@ services:
     # ##################################################################
 
     pypiserver-local-packages:
-        image: pypiserver/pypiserver:latest
+        image: pypiserverplus/pypiserverplus:latest
         volumes:
             - type: bind
               source: ./packages
@@ -80,7 +80,7 @@ services:
     # Remember to change "your.domain.com" and "your@email.com" with your domain
     # and email address respectively.
     #
-    # The pypiserver will be available at: https://your.domain.com
+    # The pypiserverplus will be available at: https://your.domain.com
     # The Traefik dashboard will be available at: https://your.domain.com/dashboard/
     #
     # A Traefik user can be added using the htpasswd tool:
@@ -88,7 +88,7 @@ services:
     # ##############################################################################
 
     pypiserver-https:
-        image: pypiserver/pypiserver:latest
+        image: pypiserverplus/pypiserverplus:latest
         volumes:
             - type: bind
               source: ./auth

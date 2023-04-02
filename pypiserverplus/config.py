@@ -22,7 +22,7 @@ The `Config` class is a factory class only. Config objects do not inherit from
 it, but from `_ConfigCommon`. The `Config` provides the following constructors:
 
 - `default_with_overrides(**overrides: Any)`: construct a `RunConfig` (since
-  run is the default pypiserver action) with default values, applying any
+  run is the default pypiserverplus action) with default values, applying any
   specified overrides
 - `from_args(args: Optional[Sequence[str]])`: construct a config from the
   provided arguments. Depending on arguments, the config will be either a
@@ -47,7 +47,7 @@ from distutils.util import strtobool as strtoint
 
 import pkg_resources
 
-from pypiserver.backend import (
+from pypiserverplus.backend import (
     SimpleFileBackend,
     CachingFileBackend,
     Backend,
@@ -150,7 +150,7 @@ def health_endpoint_arg(arg: str) -> str:
 
 def html_file_arg(arg: t.Optional[str]) -> str:
     """Parse the provided HTML file and return its contents."""
-    if arg is None or arg == "pypiserver/welcome.html":
+    if arg is None or arg == "pypiserverplus/welcome.html":
         return pkg_resources.resource_string(__name__, "welcome.html").decode(
             "utf-8"
         )
@@ -161,7 +161,7 @@ def html_file_arg(arg: t.Optional[str]) -> str:
 
 def ignorelist_file_arg(arg: t.Optional[str]) -> t.List[str]:
     """Parse the ignorelist and return the list of ignored files."""
-    if arg is None or arg == "pypiserver/no-ignores":
+    if arg is None or arg == "pypiserverplus/no-ignores":
         return []
 
     fpath = pathlib.Path(arg)
@@ -221,7 +221,7 @@ def log_stream_arg(arg: str) -> t.Optional[t.IO]:
 def add_common_args(parser: argparse.ArgumentParser) -> None:
     """Add common arguments to a parser."""
     # Don't update at top-level to avoid circular imports in __init__
-    from pypiserver import __version__
+    from pypiserverplus import __version__
 
     parser.add_argument(
         "-v",
@@ -292,7 +292,7 @@ def get_parser() -> argparse.ArgumentParser:
         description=(
             "start PyPI compatible package server serving packages from "
             "PACKAGES_DIRECTORY. If PACKAGES_DIRECTORY is not given on the "
-            "command line, it uses the default ~/packages. pypiserver scans "
+            "command line, it uses the default ~/packages. pypiserverplus scans "
             "this directory recursively for packages. It skips packages and "
             "directories starting with a dot. Multiple package directories "
             "may be specified."
@@ -311,7 +311,7 @@ def get_parser() -> argparse.ArgumentParser:
     run_parser = subparsers.add_parser(
         "run",
         formatter_class=PreserveWhitespaceRawTextHelpFormatter,
-        help="Run pypiserver, serving packages from PACKAGES_DIRECTORY",
+        help="Run pypiserverplus, serving packages from PACKAGES_DIRECTORY",
     )
 
     add_common_args(run_parser)
@@ -439,7 +439,7 @@ def get_parser() -> argparse.ArgumentParser:
         # if the value isn't provided, but if we specify `None` as a default
         # or let argparse handle the default logic, it will not call that
         # function with the None value. So, we set it to a custom value.
-        default="pypiserver/welcome.html",
+        default="pypiserverplus/welcome.html",
         type=html_file_arg,
         help=(
             "Use the contents of HTML_FILE as a custom welcome message "
@@ -487,7 +487,7 @@ def get_parser() -> argparse.ArgumentParser:
     update_parser = subparsers.add_parser(
         "update",
         help=textwrap.dedent(
-            "Handle updates of packages managed by pypiserver. By default, "
+            "Handle updates of packages managed by pypiserverplus. By default, "
             "a pip command to update the packages is printed to stdout for "
             "introspection or pipelining. See the `-x` option for updating "
             "packages directly."
@@ -531,12 +531,12 @@ def get_parser() -> argparse.ArgumentParser:
         "--blacklist-file",
         "--ignorelist-file",
         dest="ignorelist_file",
-        default="pypiserver/no-ignores",
+        default="pypiserverplus/no-ignores",
         type=ignorelist_file_arg,
         help=(
             "Don't update packages listed in this file (one package name per "
             "line, without versions, '#' comments honored). This can be useful "
-            "if you upload private packages into pypiserver, but also keep a "
+            "if you upload private packages into pypiserverplus, but also keep a "
             "mirror of public packages that you regularly update. Attempting "
             "to pull an update of a private package from `pypi.org` might pose "
             "a security risk - e.g. a malicious user might publish a higher "
@@ -762,8 +762,8 @@ class RunConfig(_ConfigCommon):
         if HtpasswdFile is None:
             sys.exit(
                 "apache.passlib library is not available. You must install "
-                "pypiserver with the optional 'passlib' dependency (`pip "
-                "install pypiserver['passlib']`) in order to use password "
+                "pypiserverplus with the optional 'passlib' dependency (`pip "
+                "install pypiserverplus['passlib']`) in order to use password "
                 "authentication"
             )
 
@@ -870,7 +870,7 @@ class Config:
                 with capture_stderr() as cap:
                     parsed = parser.parse_args(cls._adjust_old_args(args))
                 print(
-                    "WARNING: You are using deprecated arguments to pypiserver.\n\n"
+                    "WARNING: You are using deprecated arguments to pypiserverplus.\n\n"
                     "Please run `pypi-server --help` and update your command "
                     "to align with the current interface.\n\n"
                     "In most cases, this will be as simple as just using\n\n"
@@ -909,7 +909,7 @@ class Config:
 
         Should only be called once args have been verified to be unparsable.
         """
-        # Backwards compatibility hack: for most of pypiserver's life, "run"
+        # Backwards compatibility hack: for most of pypiserverplus's life, "run"
         # and "update" were not separate subcommands. The `-U` flag being
         # present on the cmdline, regardless of other arguments, would lead
         # to update behavior. In order to allow subcommands without

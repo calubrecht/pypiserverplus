@@ -7,11 +7,11 @@ function run() {
     if [[ "$EUID" -ne 0 ]]; then
         eval "$@"
     else
-        gosu pypiserver "$@"
+        gosu pypiserverplus "$@"
     fi
 }
 
-if [[ "$EUID" -ne 0 && "$EUID" -ne $(id -u pypiserver) ]]; then
+if [[ "$EUID" -ne 0 && "$EUID" -ne $(id -u pypiserverplus) ]]; then
     USER_ID="$EUID"
     WARN=(
         "The pypiserver container was run as a non-root, non-pypiserver user."
@@ -22,7 +22,7 @@ if [[ "$EUID" -ne 0 && "$EUID" -ne $(id -u pypiserver) ]]; then
     echo "${WARN[@]}" 1>&2
     echo "" 1>&2
 else
-    USER_ID=$(id -u pypiserver)
+    USER_ID=$(id -u pypiserverplus)
 fi
 
 
@@ -55,7 +55,7 @@ if ! run test -r /data -a -x /data; then
         FAIL_MSG=(
             "Cannot start pypiserver:"
             "pypiserver user (UID $USER_ID)"
-            "or pypiserver group (GID $(id -g pypiserver))"
+            "or pypiserver group (GID $(id -g pypiserverplus))"
             "must have read/execute access to /data"
         )
         echo "${FAIL_MSG[@]}" 1>&2
@@ -76,7 +76,7 @@ if [[ ! -d "/data/packages" ]]; then
             "Cannot start pypiserver:"
             "/data/packages does not exist and"
             "pypiserver user (UID $USER_ID)"
-            "or pypiserver group (GID $(id -g pypiserver))"
+            "or pypiserver group (GID $(id -g pypiserverplus))"
             "does not have write access to /data to create it"
         )
         echo "" 1>&2
@@ -87,7 +87,7 @@ if [[ ! -d "/data/packages" ]]; then
     run mkdir /data/packages
 fi
 
-# The pypiserver user needs read/write/execute access to the packages directory
+# The pypiserverplus user needs read/write/execute access to the packages directory
 if ! run \
     test -w /data/packages \
     -a -r /data/packages \
@@ -104,7 +104,7 @@ if ! run \
         FAIL_MSG=(
             "Cannot start pypiserver:"
             "pypiserver user (UID $USER_ID)"
-            "or pypiserver group (GID $(id -g pypiserver))"
+            "or pypiserver group (GID $(id -g pypiserverplus))"
             "must have read/write/execute access to /data/packages"
         )
         echo "" 1>&2
@@ -128,5 +128,5 @@ fi
 if [[ "$EUID" -ne 0 ]]; then
     exec pypi-server "${CMD[@]}"
 else
-    exec gosu pypiserver pypi-server "${CMD[@]}"
+    exec gosu pypiserverplus pypi-server "${CMD[@]}"
 fi

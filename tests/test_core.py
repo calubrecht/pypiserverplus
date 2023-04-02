@@ -6,8 +6,8 @@ import os
 
 import pytest
 
-from pypiserver import __main__, core, backend
-from pypiserver.pkg_helpers import (
+from pypiserverplus import __main__, core, backend
+from pypiserverplus.pkg_helpers import (
     normalize_pkgname_for_url,
 )
 from tests.doubles import Namespace

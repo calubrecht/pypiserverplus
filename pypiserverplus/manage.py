@@ -1,4 +1,4 @@
-"""Management operations for pypiserver."""
+"""Management operations for pypiserverplus."""
 
 from __future__ import absolute_import, print_function, unicode_literals
 

@@ -1,7 +1,7 @@
 """ NOT YET IMPLEMENTED
 
 Plugins are callable setuptools entrypoints that are invoked at startup that
-a developer may use to extend the behaviour of pypiserver. A plugin for example
+a developer may use to extend the behaviour of pypiserverplus. A plugin for example
 may add an additional Backend to the system. A plugin will be called
 with the following keyword arguments
 
@@ -18,13 +18,13 @@ with the following keyword arguments
 In the future, the plugin callable may be called with additional keyword
 arguments, so a plugin should accept a **kwargs variadic keyword argument.
 """
-from pypiserver.backend import SimpleFileBackend, CachingFileBackend
-from pypiserver import get_file_backend
+from pypiserverplus.backend import SimpleFileBackend, CachingFileBackend
+from pypiserverplus import get_file_backend
 
 DEFAULT_PACKAGE_DIRECTORIES = ["~/packages"]
 
 
-# register this as a setuptools entrypoint under the 'pypiserver.plugin' key
+# register this as a setuptools entrypoint under the 'pypiserverplus.plugin' key
 def my_plugin(add_argument, backends, **_):
     add_argument(
         "package_directory",

@@ -13,8 +13,8 @@ import webtest
 
 # Local Imports
 from tests.test_pkg_helpers import files, invalid_files
-from pypiserver import __main__, bottle, core, Bottle
-from pypiserver.backend import CachingFileBackend, SimpleFileBackend
+from pypiserverplus import __main__, bottle, core, Bottle
+from pypiserverplus.backend import CachingFileBackend, SimpleFileBackend
 
 # Enable logging to detect any problems with it
 ##
@@ -24,7 +24,7 @@ __main__.init_logging()
 
 @pytest.fixture
 def app(tmpdir):
-    from pypiserver import app
+    from pypiserverplus import app
 
     return app(
         roots=[pathlib.Path(tmpdir.strpath)],
@@ -36,7 +36,7 @@ def app(tmpdir):
 
 @pytest.fixture
 def testapp(app):
-    """Return a webtest TestApp initiated with pypiserver app"""
+    """Return a webtest TestApp initiated with pypiserverplus app"""
     bottle.debug(True)
     return webtest.TestApp(app)
 
@@ -133,24 +133,24 @@ def test_root_hostname(testapp):
 
 
 def test_root_welcome_msg_no_vars(root, welcome_file_no_vars):
-    from pypiserver import app
+    from pypiserverplus import app
 
     app = app(root=root.strpath, welcome_file=welcome_file_no_vars.strpath)
     testapp = webtest.TestApp(app)
     resp = testapp.get("/")
-    from pypiserver import __version__ as pver
+    from pypiserverplus import __version__ as pver
 
     resp.mustcontain(welcome_file_no_vars.read(), no=pver)
 
 
 def test_root_welcome_msg_all_vars(root, welcome_file_all_vars):
-    from pypiserver import app
+    from pypiserverplus import app
 
     app = app(root=root.strpath, welcome_file=welcome_file_all_vars.strpath)
     testapp = webtest.TestApp(app)
     resp = testapp.get("/")
 
-    from pypiserver import __version__ as pver
+    from pypiserverplus import __version__ as pver
 
     resp.mustcontain(pver)
 
@@ -195,7 +195,7 @@ def test_health_default_endpoint(testapp):
 
 
 def test_health_customized_endpoint(root):
-    from pypiserver import app
+    from pypiserverplus import app
 
     _app = app(root=root.strpath, health_endpoint="/healthz")
     testapp = webtest.TestApp(_app)
@@ -205,7 +205,7 @@ def test_health_customized_endpoint(root):
 
 
 def test_health_invalid_customized_endpoint(root):
-    from pypiserver import app
+    from pypiserverplus import app
 
     with pytest.raises(RuntimeError, match="overlaps with existing routes"):
         app(root=root.strpath, health_endpoint="/simple")
@@ -217,13 +217,13 @@ def test_favicon(testapp):
 
 def test_fallback(testapp):
     assert not testapp.app._pypiserver_config.disable_fallback
-    resp = testapp.get("/simple/pypiserver/", status=302)
+    resp = testapp.get("/simple/pypiserverplus/", status=302)
     assert resp.headers["Location"] == "https://pypi.org/simple/pypiserver/"
 
 
 def test_no_fallback(testapp):
     testapp.app._pypiserver_config.disable_fallback = True
-    testapp.get("/simple/pypiserver/", status=404)
+    testapp.get("/simple/pypiserverplus/", status=404)
 
 
 def test_serve_no_dotfiles(root, testapp):
@@ -483,7 +483,7 @@ def test_no_cache_control_set(root, testapp):
 
 
 def test_cache_control_set(root):
-    from pypiserver import app
+    from pypiserverplus import app
 
     AGE = 86400
     app_with_cache = webtest.TestApp(app(root=root.strpath, cache_control=AGE))

@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 import re
 from pathlib import Path
@@ -14,7 +14,7 @@ tests_require = [
     "webtest",
 ]
 
-setup_requires = ["setuptools", "setuptools-git >= 0.3", "wheel >= 0.25.0"]
+setup_requires = ["setuptools", "setuptools-git >= 0.3", "wheel-inspect-plus"]
 
 
 def read_file(rel_path: str):
@@ -29,7 +29,7 @@ def get_version():
     try:
         for ln in filter(
             version_line.match,
-            read_file("pypiserver/__init__.py").splitlines(),
+            read_file("pypiserverplus/__init__.py").splitlines(),
         ):
             exec(ln, locals_)
     except (ImportError, RuntimeError):
@@ -38,14 +38,15 @@ def get_version():
 
 
 setup(
-    name="pypiserver",
-    description="A minimal PyPI server for use with pip/easy_install.",
+    name="pypiserverplus",
+    description="A slightly less minimal PyPI server for use with pip/easy_install.",
     long_description=read_file("README.rst"),
     version=get_version(),
-    packages=["pypiserver"],
-    package_data={"pypiserver": ["welcome.html"]},
+    packages=["pypiserverplus"],
+    package_data={"pypiserverplus": ["welcome.html"]},
     python_requires=">=3.6",
     setup_requires=setup_requires,
+    install_requires=["wheel-inspect-plus"],
     extras_require={"passlib": ["passlib>=1.6"], "cache": ["watchdog"]},
     tests_require=tests_require,
     url="https://github.com/pypiserver/pypiserver",
@@ -78,8 +79,8 @@ setup(
     ],
     zip_safe=True,
     entry_points={
-        "paste.app_factory": ["main=pypiserver:paste_app_factory"],
-        "console_scripts": ["pypi-server=pypiserver.__main__:main"],
+        "paste.app_factory": ["main=pypiserverplus:paste_app_factory"],
+        "console_scripts": ["pypi-server=pypiserverplus.__main__:main"],
     },
     options={"bdist_wheel": {"universal": True}},
     platforms=["any"],

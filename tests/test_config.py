@@ -8,8 +8,8 @@ import sys
 
 import pytest
 
-from pypiserver.backend import SimpleFileBackend, BackendProxy
-from pypiserver.config import DEFAULTS, Config, RunConfig, UpdateConfig
+from pypiserverplus.backend import SimpleFileBackend, BackendProxy
+from pypiserverplus.config import DEFAULTS, Config, RunConfig, UpdateConfig
 
 FILE_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -474,7 +474,7 @@ _CONFIG_TEST_PARAMS: t.Tuple[ConfigTestCase, ...] = (
         legacy_args=[],
         exp_config_type=RunConfig,
         exp_config_values={
-            "_test": lambda conf: "Welcome to pypiserver" in conf.welcome_msg
+            "_test": lambda conf: "Welcome to pypiserverplus" in conf.welcome_msg
         },
     ),
     ConfigTestCase(
@@ -483,7 +483,7 @@ _CONFIG_TEST_PARAMS: t.Tuple[ConfigTestCase, ...] = (
         legacy_args=["--welcome", TEST_WELCOME_FILE],
         exp_config_type=RunConfig,
         exp_config_values={
-            "_test": lambda conf: "Hello pypiserver tester!" in conf.welcome_msg
+            "_test": lambda conf: "Hello pypiserverplus tester!" in conf.welcome_msg
         },
     ),
     # cache-control

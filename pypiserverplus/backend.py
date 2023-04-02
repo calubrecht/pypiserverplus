@@ -14,6 +14,7 @@ from .pkg_helpers import (
     is_listed_path,
     guess_pkgname_and_version,
 )
+from .pkginfo import getPkgInfo
 
 if t.TYPE_CHECKING:
     from .config import _ConfigCommon as Configuration
@@ -48,6 +49,10 @@ class IBackend(abc.ABC):
 
     @abc.abstractmethod
     def digest(self, pkg: PkgFile) -> t.Optional[str]:
+        pass
+
+    @abc.abstractmethod
+    def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
         pass
 
     @abc.abstractmethod
@@ -98,6 +103,9 @@ class Backend(IBackend, abc.ABC):
         if self.hash_algo is None or pkg.fn is None:
             return None
         return digest_file(pkg.fn, self.hash_algo)
+
+    def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
+        pass
 
     def package_count(self) -> int:
         """Return a count of all available packages. When implementing a Backend
@@ -168,6 +176,9 @@ class SimpleFileBackend(Backend):
             for existing_file in all_listed_files(root)
         )
 
+    def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
+        return getPkgInfo(pkg)
+
 
 class CachingFileBackend(SimpleFileBackend):
     def __init__(
@@ -198,6 +209,9 @@ class CachingFileBackend(SimpleFileBackend):
         return self.cache_manager.digest_file(
             pkg.fn, self.hash_algo, digest_file
         )
+
+    def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
+        pass
 
 
 def write_file(fh: t.BinaryIO, destination: PathLike) -> None:
@@ -323,3 +337,6 @@ class BackendProxy(IBackend):
 
     def digest(self, pkg: PkgFile) -> t.Optional[str]:
         return self.backend.digest(pkg)
+
+    def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
+        return self.backend.pkgInfo(pkg)

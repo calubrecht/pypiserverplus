@@ -10,7 +10,7 @@ from io import BytesIO
 from urllib.parse import urljoin, urlparse
 from json import dumps
 
-from pypiserver.config import RunConfig
+from pypiserverplus.config import RunConfig
 from . import __version__
 from . import core
 from .bottle import (
@@ -314,6 +314,25 @@ def simple(project):
     </html>
     """
     return template(tmpl, project=project, links=links)
+
+@app.route("/pypi/:project/json/")
+@auth("list")
+def json(project):
+    # PEP 503: require normalized project
+    normalized = normalize_pkgname_for_url(project)
+    if project != normalized:
+        return redirect(f"/pypi/{normalized}/json", 301)
+    packages = sorted(
+        config.backend.find_project_packages(project),
+        key=lambda x: (x.parsed_version, x.relfn),
+    )
+    if not packages:
+        if not config.disable_fallback:
+            return redirect(f"{config.fallback_url.rstrip('/')}/{project}/")
+        return HTTPError(404, f"Not Found ({normalized} does not exist)\n\n")
+    pkgSummary = config.backend.pkgInfo(packages[0])
+
+    return dumps(pkgSummary)
 
 
 @app.route("/packages/")

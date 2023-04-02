@@ -7,9 +7,9 @@ from unittest import mock
 
 import pytest
 
-import pypiserver.bottle
-from pypiserver import __main__
-from pypiserver.bottle import Bottle
+import pypiserverplus.bottle
+from pypiserverplus import __main__
+from pypiserverplus.bottle import Bottle
 
 
 THIS_DIR = pathlib.Path(__file__).parent
@@ -51,8 +51,8 @@ def main(monkeypatch):
         main.update_args = args
         main.update_kwargs = kwargs
 
-    monkeypatch.setattr("pypiserver.bottle.run", run)
-    monkeypatch.setattr("pypiserver.manage.update_all_packages", update)
+    monkeypatch.setattr("pypiserverplus.bottle.run", run)
+    monkeypatch.setattr("pypiserverplus.manage.update_all_packages", update)
 
     return main
 
@@ -210,12 +210,12 @@ def test_init_logging_with_none_stream_doesnt_add_stream_handler(dummy_logger):
 def test_welcome_file(main):
     sample_msg_file = os.path.join(os.path.dirname(__file__), "sample_msg.html")
     main(["--welcome", sample_msg_file])
-    assert "Hello pypiserver tester!" in main.app._pypiserver_config.welcome_msg
+    assert "Hello pypiserverplus tester!" in main.app._pypiserver_config.welcome_msg
 
 
 def test_welcome_file_default(main):
     main([])
-    assert "Welcome to pypiserver!" in main.app._pypiserver_config.welcome_msg
+    assert "Welcome to pypiserverplus!" in main.app._pypiserver_config.welcome_msg
 
 
 def test_password_without_auth_list(main, monkeypatch):
@@ -262,7 +262,7 @@ def test_auto_servers() -> None:
     """Test auto servers."""
     # A list of bottle ServerAdapters
     bottle_adapters = tuple(
-        a.__name__.lower() for a in pypiserver.bottle.AutoServer.adapters
+        a.__name__.lower() for a in pypiserverplus.bottle.AutoServer.adapters
     )
     # We are going to expect that our AutoServer enum names must match those
     # at least closely enough to be recognizable.

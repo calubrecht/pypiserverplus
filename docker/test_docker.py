@@ -12,12 +12,12 @@ import typing as t
 from pathlib import Path
 
 import httpx
-import pypiserver
+import pypiserverplus
 import pytest
 
 
 PYPISERVER_PROCESS_NAME = "pypi-server"
-TEST_DEMO_PIP_PACKAGE = "pypiserver-mypkg"
+TEST_DEMO_PIP_PACKAGE = "pypiserverplus-mypkg"
 
 THIS_DIR = Path(__file__).parent
 ROOT_DIR = THIS_DIR.parent
@@ -39,11 +39,11 @@ HTPASS_FILE = FIXTURES / "htpasswd.a.a"
 
 @pytest.fixture(scope="session")
 def image() -> str:
-    """Build the docker image for pypiserver.
+    """Build the docker image for pypiserverplus.
 
     Return the tag.
     """
-    tag = "pypiserver:test"
+    tag = "pypiserverplus:test"
     run(
         "docker",
         "build",
@@ -98,7 +98,7 @@ def wait_for_container(port: int) -> None:
     # If we reach here, we've tried 60 times without success, meaning either
     # the container is broken or it took more than about a minute to become
     # functional, either of which cases is something we will want to look into.
-    raise RuntimeError("Could not connect to pypiserver container")
+    raise RuntimeError("Could not connect to pypiserverplus container")
 
 
 def get_socket() -> int:
@@ -178,7 +178,7 @@ class TestCommands:
     def test_version(self, image: str) -> None:
         """We can get the version from the docker container."""
         res = run("docker", "run", image, "--version", capture=True)
-        assert res.out.strip() == pypiserver.__version__
+        assert res.out.strip() == pypiserverplus.__version__
 
 
 class TestPermissions:
@@ -244,7 +244,7 @@ class TestPermissions:
             assert "must have read/write/execute access" in res.err
 
     def test_runs_as_pypiserver_user(self, image: str) -> None:
-        """Test that the default run uses the pypiserver user."""
+        """Test that the default run uses the pypiserverplus user."""
         host_port = get_socket()
         res = run(
             "docker",
@@ -292,10 +292,10 @@ class ContainerInfo(t.NamedTuple):
 
 
 class TestBasics:
-    """Test basic pypiserver functionality in a simple unauthed container."""
+    """Test basic pypiserverplus functionality in a simple unauthed container."""
 
     # We want to automatically parametrize this class' tests with a variety of
-    # pypiserver args, since it should work the same in all of these cases
+    # pypiserverplus args, since it should work the same in all of these cases
     @pytest.fixture(
         scope="class",
         params=[
@@ -316,7 +316,7 @@ class TestBasics:
     def container(
         self, request: pytest.FixtureRequest, image: str
     ) -> t.Iterator[ContainerInfo]:
-        """Run the pypiserver container.
+        """Run the pypiserverplus container.
 
         Returns the container ID.
         """
@@ -408,7 +408,7 @@ class TestBasics:
         server = resp.headers["server"].lower()
         arg_pairs = tuple(zip(container.args, container.args[1:]))
         if (
-            container.args[-1] == "pypiserver:test"
+            container.args[-1] == "pypiserverplus:test"
             or ("--server", "gunicorn") in arg_pairs
         ):
             # We specified no overriding args, so we should run gunicorn, or
@@ -432,17 +432,17 @@ class TestBasics:
         """View the welcome page."""
         resp = httpx.get(f"http://localhost:{container.port}")
         assert resp.status_code == 200
-        assert "pypiserver" in resp.text
+        assert "pypiserverplus" in resp.text
 
 
 class TestAuthed:
-    """Test basic pypiserver functionality in a simple unauthed container."""
+    """Test basic pypiserverplus functionality in a simple unauthed container."""
 
     HOST_PORT = get_socket()
 
     @pytest.fixture(scope="class")
     def container(self, image: str) -> t.Iterator[str]:
-        """Run the pypiserver container.
+        """Run the pypiserverplus container.
 
         Returns the container ID.
         """
@@ -592,4 +592,4 @@ class TestAuthed:
         """View the welcome page."""
         resp = httpx.get(f"http://localhost:{self.HOST_PORT}")
         assert resp.status_code == 200
-        assert "pypiserver" in resp.text
+        assert "pypiserverplus" in resp.text

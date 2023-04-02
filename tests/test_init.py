@@ -11,8 +11,8 @@ import pytest
 
 
 # Local imports
-import pypiserver
-from pypiserver.config import Config
+import pypiserverplus
+from pypiserverplus.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +38,11 @@ WELCOME_FILE = TEST_DIR / "sample_msg.html"
 )
 def test_paste_app_factory(conf_options: dict) -> None:
     """Test the paste_app_factory method"""
-    pypiserver.paste_app_factory({}, **conf_options)  # type: ignore
+    pypiserverplus.paste_app_factory({}, **conf_options)  # type: ignore
 
 
 def test_app_factory() -> None:
-    assert pypiserver.app() is not pypiserver.app()
+    assert pypiserverplus.app() is not pypiserverplus.app()
 
 
 @pytest.mark.parametrize(
@@ -87,7 +87,7 @@ def test_backwards_compat_kwargs_conversion(
     incoming: t.Dict[str, t.Any], updated: t.Dict[str, t.Any]
 ) -> None:
     """Test converting legacy kwargs to modern ones."""
-    assert pypiserver.backwards_compat_kwargs(incoming) == updated
+    assert pypiserverplus.backwards_compat_kwargs(incoming) == updated
 
 
 @pytest.mark.parametrize(
@@ -102,13 +102,13 @@ def test_backwards_compat_kwargs_duplicate_check(
 ) -> None:
     """Duplicate legacy and modern kwargs cause an error."""
     with pytest.raises(ValueError) as err:
-        pypiserver.backwards_compat_kwargs(kwargs)
+        pypiserverplus.backwards_compat_kwargs(kwargs)
     assert "('redirect_to_fallback', 'disable_fallback')" in str(err.value)
 
 
 def test_setup_routes_from_config_customized_endpoint() -> None:
-    _app = pypiserver.setup_routes_from_config(
-        pypiserver.app(),
+    _app = pypiserverplus.setup_routes_from_config(
+        pypiserverplus.app(),
         Config.default_with_overrides(health_endpoint="/healthz"),
     )
     assert "/healthz" in (route.rule for route in _app.routes)
@@ -116,7 +116,7 @@ def test_setup_routes_from_config_customized_endpoint() -> None:
 
 def test_setup_routes_from_config_invalid_customized_endpoint() -> None:
     with pytest.raises(RuntimeError, match="overlaps with existing routes"):
-        pypiserver.setup_routes_from_config(
-            pypiserver.app(),
+        pypiserverplus.setup_routes_from_config(
+            pypiserverplus.app(),
             Config.default_with_overrides(health_endpoint="/simple"),
         )

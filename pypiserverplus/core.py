@@ -5,7 +5,7 @@ import mimetypes
 import typing as t
 from urllib.parse import quote
 
-from pypiserver.pkg_helpers import normalize_pkgname, parse_version
+from pypiserverplus.pkg_helpers import normalize_pkgname, parse_version
 
 mimetypes.add_type("application/octet-stream", ".egg")
 mimetypes.add_type("application/octet-stream", ".whl")

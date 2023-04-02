@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from pypiserver.backend import listdir
+from pypiserverplus.backend import listdir
 
 
 def create_path(root: Path, path: Path):
