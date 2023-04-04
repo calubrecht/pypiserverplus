@@ -330,7 +330,8 @@ def json(project):
         if not config.disable_fallback:
             return redirect(f"{config.fallback_url.rstrip('/')}/{project}/")
         return HTTPError(404, f"Not Found ({normalized} does not exist)\n\n")
-    pkgSummary = config.backend.pkgInfo(packages[0])
+    wheels = filter( lambda p:  p.fn.endswith('.whl'), packages);
+    pkgSummary = config.backend.pkgInfo(next(wheels))
 
     return dumps(pkgSummary)
 
