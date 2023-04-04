@@ -9,6 +9,7 @@ from collections import namedtuple
 from io import BytesIO
 from urllib.parse import urljoin, urlparse
 from json import dumps
+from functools import partial
 
 from pypiserverplus.config import RunConfig
 from . import __version__
@@ -330,8 +331,11 @@ def json(project):
         if not config.disable_fallback:
             return redirect(f"{config.fallback_url.rstrip('/')}/{project}/")
         return HTTPError(404, f"Not Found ({normalized} does not exist)\n\n")
-    wheels = filter( lambda p:  p.fn.endswith('.whl'), packages);
-    pkgSummary = config.backend.pkgInfo(next(wheels))
+    wheels = list(filter( lambda p:  p.fn.endswith('.whl'), packages))
+    req_url = request.url
+    pkgSummary = config.backend.pkgInfo(wheels[0])
+    config.backend.appendVersions(pkgSummary, wheels, partial(lambda url: urljoin(req_url, "../../packages/" + url)))
+    response.content_type = "application/json"
 
     return dumps(pkgSummary)
 

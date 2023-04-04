@@ -6,6 +6,7 @@ import logging
 import os
 import typing as t
 from pathlib import Path
+from functools import partial
 
 from .cache import CacheManager, ENABLE_CACHING
 from .core import PkgFile
@@ -15,6 +16,7 @@ from .pkg_helpers import (
     guess_pkgname_and_version,
 )
 from .pkginfo import getPkgInfo
+from .pkginfo import appendPkgVersions
 
 if t.TYPE_CHECKING:
     from .config import _ConfigCommon as Configuration
@@ -53,6 +55,10 @@ class IBackend(abc.ABC):
 
     @abc.abstractmethod
     def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
+        pass
+
+    @abc.abstractmethod
+    def appendVersions(self, info: dict, wheelFiles: list, getAbsUrl:partial):
         pass
 
     @abc.abstractmethod
@@ -106,6 +112,10 @@ class Backend(IBackend, abc.ABC):
 
     def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
         pass
+
+    def appendVersions(self, info: dict, wheelFiles: list, getAbsUrl:partial):
+        pass
+
 
     def package_count(self) -> int:
         """Return a count of all available packages. When implementing a Backend
@@ -178,6 +188,9 @@ class SimpleFileBackend(Backend):
 
     def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
         return getPkgInfo(pkg)
+
+    def appendVersions(self, info: dict, wheelFiles: list, getAbsUrl:partial):
+        appendPkgVersions(info, wheelFiles, getAbsUrl)
 
 
 class CachingFileBackend(SimpleFileBackend):
@@ -340,3 +353,6 @@ class BackendProxy(IBackend):
 
     def pkgInfo(self, pkg: PkgFile) -> t.Optional[dict]:  # Replace dict with actual class
         return self.backend.pkgInfo(pkg)
+
+    def appendVersions(self, info: dict, wheelFiles: list, getAbsUrl:partial):
+        self.backend.appendVersions(info, wheelFiles, getAbsUrl)
