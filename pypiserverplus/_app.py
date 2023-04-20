@@ -429,6 +429,8 @@ def bad_url(project):
 
 
 @app.route("/packageList")
+def redirectPackageList():
+    return redirect("/packageList/")
 @app.route("/packageList/")
 @auth("list")
 def packageList():
@@ -450,6 +452,9 @@ def packageList():
     return template(tmpl, links=links)
 
 @app.route("/packageList/:project")
+def redirectPackageListVersion(project):
+    return redirect("/packageList/" + project + "/")
+
 @app.route("/packageList/:project/")
 @auth("list")
 def vesionList(project):
