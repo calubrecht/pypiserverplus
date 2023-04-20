@@ -60,7 +60,7 @@ def print_request():
     parsed = urlparse(request.urlparts.scheme + "://" + request.urlparts.netloc)
     request.custom_host = parsed.netloc
     request.custom_fullpath = (
-        parsed.path.rstrip("/") + "/" + request.fullpath.lstrip("/")
+            parsed.path.rstrip("/") + "/" + request.fullpath.lstrip("/")
     )
 
 
@@ -149,8 +149,8 @@ def file_upload():
     if not ufiles.pkg:
         raise HTTPError(400, "Missing 'content' file-field!")
     if (
-        ufiles.sig
-        and f"{ufiles.pkg.raw_filename}.asc" != ufiles.sig.raw_filename
+            ufiles.sig
+            and f"{ufiles.pkg.raw_filename}.asc" != ufiles.sig.raw_filename
     ):
         raise HTTPError(
             400,
@@ -161,8 +161,8 @@ def file_upload():
         if not uf:
             continue
         if (
-            not is_valid_pkg_filename(uf.raw_filename)
-            or guess_pkgname_and_version(uf.raw_filename) is None
+                not is_valid_pkg_filename(uf.raw_filename)
+                or guess_pkgname_and_version(uf.raw_filename) is None
         ):
             raise HTTPError(400, f"Bad filename: {uf.raw_filename}")
 
@@ -316,6 +316,7 @@ def simple(project):
     """
     return template(tmpl, project=project, links=links)
 
+
 @app.route("/pypi/:project/json/")
 @auth("list")
 def json(project):
@@ -331,7 +332,7 @@ def json(project):
         if not config.disable_fallback:
             return redirect(f"{config.fallback_url.rstrip('/')}/{project}/")
         return HTTPError(404, f"Not Found ({normalized} does not exist)\n\n")
-    wheels = list(filter( lambda p:  p.fn.endswith('.whl'), packages))
+    wheels = list(filter(lambda p: p.fn.endswith('.whl'), packages))
     req_url = request.url
     pkgSummary = config.backend.pkgInfo(wheels[0])
     config.backend.appendVersions(pkgSummary, wheels, partial(lambda url: urljoin(req_url, "../../packages/" + url)))
@@ -425,3 +426,90 @@ def json_info(project):
 def bad_url(project):
     """Redirect unknown root URLs to /simple/."""
     return redirect(core.get_bad_url_redirect_path(request, project))
+
+
+@app.route("/packageList")
+@app.route("/packageList/")
+@auth("list")
+def packageList():
+    links = sorted(config.backend.get_projects())
+    tmpl = """\
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>Package Index</title>
+        </head>
+        <body>
+            <h1>Package Index</h1>
+            % for p in links:
+                 <a href="{{p}}/">{{p}}</a><br>
+            % end
+        </body>
+    </html>
+    """
+    return template(tmpl, links=links)
+
+@app.route("/packageList/:project")
+@app.route("/packageList/:project/")
+@auth("list")
+def vesionList(project):
+    packages = list(config.backend.find_project_packages(project))
+    versions = [*set(map(lambda package: package.version, packages))]
+    links = sorted(versions)
+    tmpl = """\
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title> {{project}} versions</title>
+        </head>
+        <body>
+            <h1>{{project}} versions</h1>
+            % for p in links:
+                 <a href="{{p}}/">{{p}}</a><br>
+            % end
+        </body>
+    </html>
+    """
+    return template(tmpl, project=project, links=links)
+
+@app.route("/packageList/:project/:version")
+@app.route("/packageList/:project/:version/")
+@auth("list")
+def versionDetails(project, version):
+    #packages = list(config.backend.find_project_packages(project))
+    #versions = [*set(map(lambda package: package.version, packages))]
+    #links = sorted(versions)
+    #json = config.backend.getVersionInfo(project, version)
+    package = next(config.backend.find_version(project, version), None)
+    if not package:
+        tmpl = """\
+         <!DOCTYPE html>
+         <html>
+             <head>
+                 <title> {{project}} v{{version}}</title>
+             </head>
+             <body>
+                 <h1>{{project}} v{{version}}</h1>
+                 Error: This package Cannot be found
+             </body>
+         </html>
+         """
+        return template(tmpl, project=project, version=version)
+    port = ":" + str(request.urlparts.port) if request.urlparts.port else ""
+    baseUrl = request.urlparts.scheme + "://" + request.urlparts.hostname + port
+    installCommand = "pip install {project} --index-url {baseUrl}/simple/".format(project=project, baseUrl=baseUrl)
+    tmpl = """\
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title> {{project}} v{{version}}</title>
+        </head>
+        <body>
+            <h1>{{project}} v{{version}}</h1>
+            To install use the command
+            <div><code>{{installCommand}}</code></div>
+            Some details would be nice
+        </body>
+    </html>
+    """
+    return template(tmpl, project=project, version=version, installCommand=installCommand)
