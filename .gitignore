@@ -56,3 +56,6 @@ rc/
 
 # Various local temporary artifacts
 .tmp/
+
+# Local Debugging data location
+data/
