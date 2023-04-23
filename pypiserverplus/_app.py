@@ -10,6 +10,7 @@ from io import BytesIO
 from urllib.parse import urljoin, urlparse
 from json import dumps
 from functools import partial
+from readme_renderer.rst import render
 
 from pypiserverplus.config import RunConfig
 from . import __version__
@@ -334,7 +335,7 @@ def json(project):
         return HTTPError(404, f"Not Found ({normalized} does not exist)\n\n")
     wheels = list(filter(lambda p: p.fn.endswith('.whl'), packages))
     req_url = request.url
-    pkgSummary = config.backend.pkgInfo(wheels[0])
+    pkgSummary = config.backend.pkgInfo(wheels[-1])
     config.backend.appendVersions(pkgSummary, wheels, partial(lambda url: urljoin(req_url, "../../packages/" + url)))
     response.content_type = "application/json"
 
@@ -481,11 +482,8 @@ def vesionList(project):
 @app.route("/packageList/:project/:version/")
 @auth("list")
 def versionDetails(project, version):
-    #packages = list(config.backend.find_project_packages(project))
-    #versions = [*set(map(lambda package: package.version, packages))]
-    #links = sorted(versions)
-    #json = config.backend.getVersionInfo(project, version)
-    package = next(config.backend.find_version(project, version), None)
+    allpackages = list(config.backend.find_version(project, version))
+    package = next(filter(lambda p: p.fn.endswith(".whl"), allpackages), None)
     if not package:
         tmpl = """\
          <!DOCTYPE html>
@@ -500,9 +498,16 @@ def versionDetails(project, version):
          </html>
          """
         return template(tmpl, project=project, version=version)
+
+    packages = list(config.backend.find_project_packages(project))
+    versions = list(map(lambda package: package.version, sorted(packages, reverse=True, key=lambda x: (x.parsed_version))))
+    maxVersion = versions[0]
     port = ":" + str(request.urlparts.port) if request.urlparts.port else ""
     baseUrl = request.urlparts.scheme + "://" + request.urlparts.hostname + port
-    installCommand = "pip install {project} --index-url {baseUrl}/simple/".format(project=project, baseUrl=baseUrl)
+    versionString = ("==" + version) if version != maxVersion else ""
+    installCommand = "pip install {project}{versionString} --index-url {baseUrl}/simple/".format(project=project, baseUrl=baseUrl, versionString=versionString)
+    pkgSummary = config.backend.pkgInfo(package)
+    renderedDesc = render(pkgSummary["info"]["description"])
     tmpl = """\
     <!DOCTYPE html>
     <html>
@@ -513,8 +518,8 @@ def versionDetails(project, version):
             <h1>{{project}} v{{version}}</h1>
             To install use the command
             <div><code>{{installCommand}}</code></div>
-            Some details would be nice
+            <div>{renderedDesc}</div>>
         </body>
     </html>
     """
-    return template(tmpl, project=project, version=version, installCommand=installCommand)
+    return template(tmpl, project=project, version=version, installCommand=installCommand).format(renderedDesc=renderedDesc)

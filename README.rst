@@ -1,6 +1,6 @@
 .. -*- mode: rst; coding: utf-8 -*-
 
-.. image:: docs/__resources__/pypiserver_logo.png
+.. image:: https://github.com/pypiserver/pypiserver/raw/master/docs/__resources__/pypiserver_logo.png
    :width: 300 px
    :align: center
 
@@ -9,8 +9,8 @@ pypiserver - minimal PyPI server for use with pip/easy_install
 ==============================================================================
 |pypi-ver| |test-status| |dependencies| |python-ver| |proj-license|
 
-:Version:     1.5.1.5
-:Date:        2023-04-20
+:Version:     1.5.1.7
+:Date:        2023-04-21
 :Source:      https://github.com/pypiserver/pypiserver
 :PyPI:        https://pypi.org/project/pypiserver/
 :Tests:       https://github.com/pypiserver/pypiserver/actions
