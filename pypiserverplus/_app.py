@@ -2,6 +2,7 @@ import logging
 import mimetypes
 import os
 import re
+import time
 import xml.dom.minidom
 import xmlrpc.client as xmlrpclib
 import zipfile
@@ -390,7 +391,7 @@ def server_static(filename):
                 )
             return response
 
-    return HTTPError(404, f"Not Found ({filename} does not exist)\n\n")
+    return HTTPError(404, f"Not Found ( {filename} does not exist)\n\n")
 
 
 @app.route("/:project/json")
@@ -508,6 +509,7 @@ def versionDetails(project, version):
     installCommand = "pip install {project}{versionString} --index-url {baseUrl}/simple/".format(project=project, baseUrl=baseUrl, versionString=versionString)
     pkgSummary = config.backend.pkgInfo(package)
     renderedDesc = render(pkgSummary["info"]["description"])
+    renderedDesc = renderedDesc if renderedDesc else "<code>{}</code>".format(pkgSummary["info"]["description"])
     tmpl = """\
     <!DOCTYPE html>
     <html>

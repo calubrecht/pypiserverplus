@@ -18,6 +18,7 @@ from .pkg_helpers import (
 )
 from .pkginfo import getPkgInfo
 from .pkginfo import appendPkgVersions
+from .pkginfo import loadWheels
 
 if t.TYPE_CHECKING:
     from .config import _ConfigCommon as Configuration
@@ -161,6 +162,10 @@ class SimpleFileBackend(Backend):
     def __init__(self, config: "Configuration"):
         super().__init__(config)
         self.roots = [Path(root).resolve() for root in config.roots]
+
+        # Prime pkgInfo for wheels
+        wheelFiles = filter(lambda p: p.fn.endswith(".whl"), self.get_all_packages())
+        loadWheels(wheelFiles)
 
     def get_all_packages(self) -> t.Iterable[PkgFile]:
         return itertools.chain.from_iterable(listdir(r) for r in self.roots)
